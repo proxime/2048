@@ -1,0 +1,24 @@
+{
+  "name": "2048",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server",
+    "server": "nodemon server",
+    "client": "npm start --prefix client",
+    "client-prod": "npm run build --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "prod": "concurrently \"npm run server\" \"npm run client-prod\"",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^5.0.0",
+    "nodemon": "^1.19.4"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
