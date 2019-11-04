@@ -3,6 +3,7 @@ class Game {
         this.points = points;
         this.roundPoints = 0;
 
+        this.gameEl = document.querySelector('.game-container');
         this.tilesEl = document.querySelector('.game__tiles');
         this.newGameBtn = document.querySelector('.header__new-game button');
 
@@ -23,6 +24,20 @@ class Game {
         this.tiles = [];
         this.canMove = true;
         this.roundChanges = false;
+
+        // Touch move
+        this.touchPosition = {
+            x: null,
+            y: null,
+        }
+
+        this.mobileView = window.matchMedia('(max-width: 500px)')
+        this.isMobeile = this.mobileView.matches;
+
+        this.mobileView.addListener(isMobile => {
+            this.isMobeile = isMobile.matches;
+            this.resizeTiles();
+        })
     }
 
     getTileValue() {
@@ -50,8 +65,27 @@ class Game {
         tile.appendChild(tileContent);
         this.tilesEl.appendChild(tile);
         this.tiles.push({ tile, y, x });
-        tile.style.left = x * (10 + tile.clientWidth) + 15 + 'px';
-        tile.style.top = y * (10 + tile.clientHeight) + 15 + 'px';
+
+        if (this.isMobeile) {
+            tile.style.left = x * (4 + tile.clientWidth) + 8 + 'px';
+            tile.style.top = y * (4 + tile.clientHeight) + 8 + 'px';
+        } else {
+            tile.style.left = x * (10 + tile.clientWidth) + 15 + 'px';
+            tile.style.top = y * (10 + tile.clientHeight) + 15 + 'px';
+        }
+
+    }
+
+    resizeTiles() {
+        this.tiles.forEach(tile => {
+            if (this.isMobeile) {
+                tile.tile.style.left = tile.x * (4 + tile.tile.clientWidth) + 8 + 'px';
+                tile.tile.style.top = tile.y * (4 + tile.tile.clientHeight) + 8 + 'px';
+            } else {
+                tile.tile.style.left = tile.x * (10 + tile.tile.clientWidth) + 15 + 'px';
+                tile.tile.style.top = tile.y * (10 + tile.tile.clientHeight) + 15 + 'px';
+            }
+        })
     }
 
     handleColorClass(tile, value) {
@@ -105,8 +139,15 @@ class Game {
                 this.handleColorClass(mergedFiles[0].tile, this.gameBoard[newY][newX]);
             }, 150);
         }
-        tile.style.left = newX * (10 + tile.clientWidth) + 15 + 'px';
-        tile.style.top = newY * (10 + tile.clientHeight) + 15 + 'px';
+
+
+        if (this.isMobeile) {
+            tile.style.left = newX * (4 + tile.clientWidth) + 8 + 'px';
+            tile.style.top = newY * (4 + tile.clientHeight) + 8 + 'px';
+        } else {
+            tile.style.left = newX * (10 + tile.clientWidth) + 15 + 'px';
+            tile.style.top = newY * (10 + tile.clientHeight) + 15 + 'px';
+        }
     }
 
     onRightMove() {
@@ -145,125 +186,176 @@ class Game {
         window.localStorage.setItem('gameBoard', JSON.stringify(this.gameBoard));
     }
 
+    leftMove() {
+        for (let y = 0; y < this.gameBoard.length; ++y) {
+            for (let x = 0; x < this.gameBoard.length; ++x) {
+                if (this.gameBoard[y][x]) {
+                    let newX = x;
+
+                    while (this.gameBoard[y][newX - 1] !== undefined && this.gameBoard[y][newX - 1] === null) {
+                        newX--;
+                    }
+
+                    if (this.gameBoard[y][newX - 1] !== undefined && !this.gameMerged[y][newX - 1] && this.gameBoard[y][newX - 1] === this.gameBoard[y][x]) {
+                        this.gameBoard[y][newX - 1] = this.gameBoard[y][x] * 2;
+                        this.setMerged(y, newX - 1);
+                        this.gameBoard[y][x] = null;
+                        this.tileAnim(y, x, y, newX - 1);
+                    } else if (x !== newX) {
+                        [this.gameBoard[y][newX], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
+                        this.tileAnim(y, x, y, newX);
+                    }
+                }
+            }
+        }
+    }
+
+    upMove() {
+        for (let y = 0; y < this.gameBoard.length; ++y) {
+            for (let x = 0; x < this.gameBoard.length; ++x) {
+                if (this.gameBoard[y][x]) {
+                    let newY = y;
+
+                    while (this.gameBoard[newY - 1] !== undefined && this.gameBoard[newY - 1][x] !== undefined && this.gameBoard[newY - 1][x] === null) {
+                        --newY;
+                    }
+
+                    if (this.gameBoard[newY - 1] !== undefined && this.gameBoard[newY - 1][x] !== undefined && !this.gameMerged[newY - 1][x] && this.gameBoard[newY - 1][x] === this.gameBoard[y][x]) {
+                        this.gameBoard[newY - 1][x] = this.gameBoard[y][x] * 2;
+                        this.setMerged(newY - 1, x);
+                        this.gameBoard[y][x] = null;
+                        this.tileAnim(y, x, newY - 1, x);
+                    } else if (y !== newY) {
+                        [this.gameBoard[newY][x], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
+                        this.tileAnim(y, x, newY, x);
+                    }
+                }
+            }
+        }
+    }
+
+    rightMove() {
+        for (let y = 0; y < this.gameBoard.length; ++y) {
+            for (let x = this.gameBoard.length - 1; x >= 0; --x) {
+                if (this.gameBoard[y][x]) {
+                    let newX = x;
+
+                    while (this.gameBoard[y][newX + 1] !== undefined && this.gameBoard[y][newX + 1] === null) {
+                        newX++;
+                    }
+
+                    if (this.gameBoard[y][newX + 1] !== undefined && !this.gameMerged[y][newX + 1] && this.gameBoard[y][newX + 1] === this.gameBoard[y][x]) {
+                        this.gameBoard[y][newX + 1] = this.gameBoard[y][x] * 2;
+                        this.setMerged(y, newX + 1);
+                        this.gameBoard[y][x] = null;
+                        this.tileAnim(y, x, y, newX + 1);
+                    } else if (x !== newX) {
+                        [this.gameBoard[y][newX], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
+                        this.tileAnim(y, x, y, newX);
+                    }
+                }
+            }
+        }
+    }
+
+    downMove() {
+        for (let y = this.gameBoard.length - 1; y >= 0; --y) {
+            for (let x = 0; x < this.gameBoard.length; ++x) {
+                if (this.gameBoard[y][x]) {
+                    let newY = y;
+
+                    while (this.gameBoard[newY + 1] !== undefined && this.gameBoard[newY + 1][x] !== undefined && this.gameBoard[newY + 1][x] === null) {
+                        ++newY;
+                    }
+
+                    if (this.gameBoard[newY + 1] !== undefined && this.gameBoard[newY + 1][x] !== undefined && !this.gameMerged[newY + 1][x] && this.gameBoard[newY + 1][x] === this.gameBoard[y][x]) {
+                        this.gameBoard[newY + 1][x] = this.gameBoard[y][x] * 2;
+                        this.setMerged(newY + 1, x);
+                        this.gameBoard[y][x] = null;
+                        this.tileAnim(y, x, newY + 1, x);
+                    } else if (y !== newY) {
+                        [this.gameBoard[newY][x], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
+                        this.tileAnim(y, x, newY, x);
+                    }
+                }
+            }
+        }
+    }
+
     move(e) {
         if (this.canMove) {
             switch (e.keyCode) {
                 case 37:
                     this.onRightMove();
-                    for (let y = 0; y < this.gameBoard.length; ++y) {
-                        for (let x = 0; x < this.gameBoard.length; ++x) {
-                            if (this.gameBoard[y][x]) {
-                                let newX = x;
-
-                                while (this.gameBoard[y][newX - 1] !== undefined && this.gameBoard[y][newX - 1] === null) {
-                                    newX--;
-                                }
-
-                                if (this.gameBoard[y][newX - 1] !== undefined && !this.gameMerged[y][newX - 1] && this.gameBoard[y][newX - 1] === this.gameBoard[y][x]) {
-                                    this.gameBoard[y][newX - 1] = this.gameBoard[y][x] * 2;
-                                    this.setMerged(y, newX - 1);
-                                    this.gameBoard[y][x] = null;
-                                    this.tileAnim(y, x, y, newX - 1);
-                                } else if (x !== newX) {
-                                    [this.gameBoard[y][newX], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
-                                    this.tileAnim(y, x, y, newX);
-                                }
-                            }
-                        }
-                    }
-                    if (this.roundChanges) {
-                        this.unsetMerged();
-                        this.createRandomTile();
-                        this.updatePoints();
-                    }
+                    this.leftMove();
                     break;
                 case 38:
                     this.onRightMove();
-                    for (let y = 0; y < this.gameBoard.length; ++y) {
-                        for (let x = 0; x < this.gameBoard.length; ++x) {
-                            if (this.gameBoard[y][x]) {
-                                let newY = y;
-
-                                while (this.gameBoard[newY - 1] !== undefined && this.gameBoard[newY - 1][x] !== undefined && this.gameBoard[newY - 1][x] === null) {
-                                    --newY;
-                                }
-
-                                if (this.gameBoard[newY - 1] !== undefined && this.gameBoard[newY - 1][x] !== undefined && !this.gameMerged[newY - 1][x] && this.gameBoard[newY - 1][x] === this.gameBoard[y][x]) {
-                                    this.gameBoard[newY - 1][x] = this.gameBoard[y][x] * 2;
-                                    this.setMerged(newY - 1, x);
-                                    this.gameBoard[y][x] = null;
-                                    this.tileAnim(y, x, newY - 1, x);
-                                } else if (y !== newY) {
-                                    [this.gameBoard[newY][x], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
-                                    this.tileAnim(y, x, newY, x);
-                                }
-                            }
-                        }
-                    }
-                    if (this.roundChanges) {
-                        this.unsetMerged();
-                        this.createRandomTile();
-                        this.updatePoints();
-                    }
+                    this.upMove();
                     break;
                 case 39:
                     this.onRightMove();
-                    for (let y = 0; y < this.gameBoard.length; ++y) {
-                        for (let x = this.gameBoard.length - 1; x >= 0; --x) {
-                            if (this.gameBoard[y][x]) {
-                                let newX = x;
-
-                                while (this.gameBoard[y][newX + 1] !== undefined && this.gameBoard[y][newX + 1] === null) {
-                                    newX++;
-                                }
-
-                                if (this.gameBoard[y][newX + 1] !== undefined && !this.gameMerged[y][newX + 1] && this.gameBoard[y][newX + 1] === this.gameBoard[y][x]) {
-                                    this.gameBoard[y][newX + 1] = this.gameBoard[y][x] * 2;
-                                    this.setMerged(y, newX + 1);
-                                    this.gameBoard[y][x] = null;
-                                    this.tileAnim(y, x, y, newX + 1);
-                                } else if (x !== newX) {
-                                    [this.gameBoard[y][newX], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
-                                    this.tileAnim(y, x, y, newX);
-                                }
-                            }
-                        }
-                    }
-                    if (this.roundChanges) {
-                        this.unsetMerged();
-                        this.createRandomTile();
-                        this.updatePoints();
-                    }
+                    this.rightMove();
                     break;
                 case 40:
                     this.onRightMove();
-                    for (let y = this.gameBoard.length - 1; y >= 0; --y) {
-                        for (let x = 0; x < this.gameBoard.length; ++x) {
-                            if (this.gameBoard[y][x]) {
-                                let newY = y;
-
-                                while (this.gameBoard[newY + 1] !== undefined && this.gameBoard[newY + 1][x] !== undefined && this.gameBoard[newY + 1][x] === null) {
-                                    ++newY;
-                                }
-
-                                if (this.gameBoard[newY + 1] !== undefined && this.gameBoard[newY + 1][x] !== undefined && !this.gameMerged[newY + 1][x] && this.gameBoard[newY + 1][x] === this.gameBoard[y][x]) {
-                                    this.gameBoard[newY + 1][x] = this.gameBoard[y][x] * 2;
-                                    this.setMerged(newY + 1, x);
-                                    this.gameBoard[y][x] = null;
-                                    this.tileAnim(y, x, newY + 1, x);
-                                } else if (y !== newY) {
-                                    [this.gameBoard[newY][x], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
-                                    this.tileAnim(y, x, newY, x);
-                                }
-                            }
-                        }
-                    }
-                    if (this.roundChanges) {
-                        this.unsetMerged();
-                        this.createRandomTile();
-                        this.updatePoints();
-                    }
+                    this.downMove();
                     break;
+            }
+
+            if (this.roundChanges) {
+                this.unsetMerged();
+                this.createRandomTile();
+                this.updatePoints();
+            }
+        }
+    }
+
+    touchStart(e) {
+        this.touchPosition = {
+            x: e.touches[0].screenX,
+            y: e.touches[0].screenY,
+        }
+    }
+
+    touchMove(e) {
+        if (this.canMove && this.touchPosition.x !== null && this.touchPosition.y !== null) {
+            const currentTouch = {
+                x: e.touches[0].screenX,
+                y: e.touches[0].screenY,
+            }
+
+            const touchDelta = {
+                x: this.touchPosition.x - currentTouch.x,
+                y: this.touchPosition.y - currentTouch.y,
+            }
+
+            if (touchDelta.x * touchDelta.x > touchDelta.y * touchDelta.y) {
+                if (touchDelta.x > 30) {
+                    this.onRightMove();
+                    this.leftMove();
+                } else if (touchDelta.x < -30) {
+                    this.onRightMove();
+                    this.rightMove();
+                }
+            } else {
+                if (touchDelta.y > 30) {
+                    this.onRightMove();
+                    this.upMove();
+                } else if (touchDelta.y < -30) {
+                    this.onRightMove();
+                    this.downMove();
+                }
+            }
+
+            if (this.roundChanges) {
+                this.unsetMerged();
+                this.createRandomTile();
+                this.updatePoints();
+                this.touchPosition = {
+                    x: null,
+                    y: null,
+                }
             }
         }
     }
@@ -296,7 +388,9 @@ class Game {
                 this.createRandomTile();
             }
         }
-        window.addEventListener('keydown', e => this.move(e))
+        window.addEventListener('keydown', e => this.move(e));
+        this.gameEl.addEventListener('touchstart', e => this.touchStart(e));
+        window.addEventListener('touchmove', e => this.touchMove(e));
         this.newGameBtn.addEventListener('click', () => this.resetGame());
         window.localStorage.setItem('gameBoard', JSON.stringify(this.gameBoard));
     }

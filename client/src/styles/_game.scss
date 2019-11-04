@@ -1,6 +1,10 @@
 .game-container {
   width: 500px;
   margin: 50px auto 30px;
+  touch-action: none;
+  @media (max-width: 500px) {
+    width: 300px;
+  }
 }
 
 .game {
@@ -18,6 +22,9 @@
     width: 100%;
     height: 100%;
     padding: 10px;
+    @media (max-width: 500px) {
+      padding: 6px;
+    }
   }
   &__cell {
     width: calc(25% - 10px);
@@ -25,6 +32,11 @@
     background-color: $cells-color;
     margin: 5px;
     border-radius: 10px;
+    @media (max-width: 500px) {
+      margin: 2px;
+      width: calc(25% - 4px);
+      padding-top: calc(25% - 4px);
+    }
   }
 
   &__tiles {
@@ -45,6 +57,10 @@
     background-color: red;
     border-radius: 10px;
     transition: left 0.15s ease, top 0.15s ease;
+    @media (max-width: 500px) {
+      width: calc(25% - 7px);
+      padding-top: calc(25% - 7px);
+    }
   }
   &__tile--new {
     transition: none;
@@ -65,6 +81,9 @@
     color: white;
     font-size: 3.3rem;
     font-weight: 600;
+    @media (max-width: 500px) {
+      font-size: 1.7rem;
+    }
   }
   &__tile--2 {
     background-color: #7f8c8d;
