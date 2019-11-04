@@ -1,7 +1,10 @@
 import './styles/index.scss'
 import Game from './js/Game';
+import Points from './js/Points';
 
-const game = new Game();
+const points = new Points();
+const game = new Game(points);
+points.initPoints();
 game.init();
 
 window.addEventListener("keydown", function (e) {

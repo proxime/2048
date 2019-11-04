@@ -1,20 +1,24 @@
 class Game {
-    constructor() {
-        this.points = 0;
-        this.tilesEl = document.querySelector('.game__tiles');
+    constructor(points) {
+        this.points = points;
+        this.roundPoints = 0;
 
-        this.gameBoard = [
+        this.tilesEl = document.querySelector('.game__tiles');
+        this.newGameBtn = document.querySelector('.header__new-game button');
+
+        window.localStorage.gameBoard ? this.gameBoard = JSON.parse(window.localStorage.gameBoard) : this.gameBoard = [
             [null, null, null, null],
             [null, null, null, null],
             [null, null, null, null],
             [null, null, null, null]
-        ]
+        ];
+
         this.gameMerged = [
             [false, false, false, false],
             [false, false, false, false],
             [false, false, false, false],
             [false, false, false, false]
-        ]
+        ];
 
         this.tiles = [];
         this.canMove = true;
@@ -124,6 +128,7 @@ class Game {
 
     setMerged(y, x) {
         this.gameMerged[y][x] = true;
+        this.roundPoints += this.gameBoard[y][x];
     }
 
     unsetMerged() {
@@ -132,6 +137,12 @@ class Game {
                 this.gameMerged[y][x] = false;
             }
         }
+    }
+
+    updatePoints() {
+        this.roundPoints > 0 && this.points.updatePoints(this.roundPoints);
+        this.roundPoints = 0;
+        window.localStorage.setItem('gameBoard', JSON.stringify(this.gameBoard));
     }
 
     move(e) {
@@ -163,6 +174,7 @@ class Game {
                     if (this.roundChanges) {
                         this.unsetMerged();
                         this.createRandomTile();
+                        this.updatePoints();
                     }
                     break;
                 case 38:
@@ -191,6 +203,7 @@ class Game {
                     if (this.roundChanges) {
                         this.unsetMerged();
                         this.createRandomTile();
+                        this.updatePoints();
                     }
                     break;
                 case 39:
@@ -219,6 +232,7 @@ class Game {
                     if (this.roundChanges) {
                         this.unsetMerged();
                         this.createRandomTile();
+                        this.updatePoints();
                     }
                     break;
                 case 40:
@@ -247,17 +261,44 @@ class Game {
                     if (this.roundChanges) {
                         this.unsetMerged();
                         this.createRandomTile();
+                        this.updatePoints();
                     }
                     break;
             }
         }
     }
 
-    init() {
+    resetGame() {
+        this.gameBoard = [
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null]
+        ];
+        this.tiles.forEach(tile => tile.tile.remove());
+        this.tiles = [];
+        this.points.resetPoints();
         for (let i = 0; i < 2; ++i) {
             this.createRandomTile();
         }
+        window.localStorage.setItem('gameBoard', JSON.stringify(this.gameBoard));
+    }
+
+    init() {
+        for (let y = 0; y < this.gameBoard.length; ++y) {
+            for (let x = 0; x < this.gameBoard.length; ++x) {
+                if (this.gameBoard[y][x]) this.createTile(y, x)
+            }
+        }
+
+        if (this.tiles.length === 0) {
+            for (let i = 0; i < 2; ++i) {
+                this.createRandomTile();
+            }
+        }
         window.addEventListener('keydown', e => this.move(e))
+        this.newGameBtn.addEventListener('click', () => this.resetGame());
+        window.localStorage.setItem('gameBoard', JSON.stringify(this.gameBoard));
     }
 }
 

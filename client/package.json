@@ -4,7 +4,7 @@
   "description": "2048 game",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --config config/webpack.dev.js --host 0.0.0.0",
+    "start": "webpack-dev-server --config config/webpack.dev.js",
     "build": "webpack --config config/webpack.prod.js"
   },
   "author": "Norbert Kułak",
