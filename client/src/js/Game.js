@@ -6,6 +6,7 @@ class Game {
         this.gameEl = document.querySelector('.game-container');
         this.tilesEl = document.querySelector('.game__tiles');
         this.newGameBtn = document.querySelector('.header__new-game button');
+        this.prevButtonEl = document.querySelector('.prev-button button');
 
         window.localStorage.gameBoard ? this.gameBoard = JSON.parse(window.localStorage.gameBoard) : this.gameBoard = [
             [null, null, null, null],
@@ -13,6 +14,8 @@ class Game {
             [null, null, null, null],
             [null, null, null, null]
         ];
+
+        window.localStorage.prevGameBoard ? this.prevGameBoard = JSON.parse(window.localStorage.prevGameBoard) : this.prevGameBoard = [[], [], [], []];
 
         this.gameMerged = [
             [false, false, false, false],
@@ -151,10 +154,41 @@ class Game {
     }
 
     onRightMove() {
+        for (let y = 0; y < this.gameBoard.length; ++y) {
+            for (let x = 0; x < this.gameBoard.length; ++x) {
+                this.prevGameBoard[y][x] = this.gameBoard[y][x];
+            }
+        }
+        window.localStorage.setItem('prevGameBoard', JSON.stringify(this.prevGameBoard));
+
         this.tiles.forEach(tile => tile.tile.classList.remove('game__tile--new'));
         this.tiles.forEach(tile => tile.tile.classList.remove('game__tile--merged'));
         this.canMove = false;
         setTimeout(() => this.canMove = true, 150);
+    }
+
+    setPrevBoard() {
+        if (this.prevGameBoard[0].length > 0) {
+            for (let y = 0; y < this.gameBoard.length; ++y) {
+                for (let x = 0; x < this.gameBoard.length; ++x) {
+                    this.gameBoard[y][x] = this.prevGameBoard[y][x];
+                }
+            }
+
+            this.tiles.forEach(tile => tile.tile.remove());
+            this.prevGameBoard = [[], [], [], []];
+            this.tiles = [];
+            this.points.setPrevPoints();
+
+            for (let y = 0; y < this.gameBoard.length; ++y) {
+                for (let x = 0; x < this.gameBoard.length; ++x) {
+                    if (this.gameBoard[y][x]) this.createTile(y, x)
+                }
+            }
+
+            window.localStorage.setItem('prevGameBoard', JSON.stringify(this.prevGameBoard));
+            window.localStorage.setItem('gameBoard', JSON.stringify(this.gameBoard));
+        }
     }
 
     createRandomTile() {
@@ -367,6 +401,7 @@ class Game {
             [null, null, null, null],
             [null, null, null, null]
         ];
+        this.prevGameBoard = [[], [], [], []];
         this.tiles.forEach(tile => tile.tile.remove());
         this.tiles = [];
         this.points.resetPoints();
@@ -393,6 +428,7 @@ class Game {
         window.addEventListener('touchmove', e => this.touchMove(e));
         this.newGameBtn.addEventListener('click', () => this.resetGame());
         window.localStorage.setItem('gameBoard', JSON.stringify(this.gameBoard));
+        this.prevButtonEl.addEventListener('click', () => this.setPrevBoard());
     }
 }
 
