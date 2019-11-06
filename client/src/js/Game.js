@@ -154,6 +154,7 @@ class Game {
     }
 
     onRightMove() {
+        this.updatePrevBoard();
         this.tiles.forEach(tile => tile.tile.classList.remove('game__tile--new'));
         this.tiles.forEach(tile => tile.tile.classList.remove('game__tile--merged'));
         this.canMove = false;
@@ -232,13 +233,11 @@ class Game {
                     }
 
                     if (this.gameBoard[y][newX - 1] !== undefined && !this.gameMerged[y][newX - 1] && this.gameBoard[y][newX - 1] === this.gameBoard[y][x]) {
-                        this.updatePrevBoard();
                         this.gameBoard[y][newX - 1] = this.gameBoard[y][x] * 2;
                         this.setMerged(y, newX - 1);
                         this.gameBoard[y][x] = null;
                         this.tileAnim(y, x, y, newX - 1);
                     } else if (x !== newX) {
-                        this.updatePrevBoard();
                         [this.gameBoard[y][newX], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
                         this.tileAnim(y, x, y, newX);
                     }
@@ -258,13 +257,11 @@ class Game {
                     }
 
                     if (this.gameBoard[newY - 1] !== undefined && this.gameBoard[newY - 1][x] !== undefined && !this.gameMerged[newY - 1][x] && this.gameBoard[newY - 1][x] === this.gameBoard[y][x]) {
-                        this.updatePrevBoard();
                         this.gameBoard[newY - 1][x] = this.gameBoard[y][x] * 2;
                         this.setMerged(newY - 1, x);
                         this.gameBoard[y][x] = null;
                         this.tileAnim(y, x, newY - 1, x);
                     } else if (y !== newY) {
-                        this.updatePrevBoard();
                         [this.gameBoard[newY][x], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
                         this.tileAnim(y, x, newY, x);
                     }
@@ -284,13 +281,11 @@ class Game {
                     }
 
                     if (this.gameBoard[y][newX + 1] !== undefined && !this.gameMerged[y][newX + 1] && this.gameBoard[y][newX + 1] === this.gameBoard[y][x]) {
-                        this.updatePrevBoard();
                         this.gameBoard[y][newX + 1] = this.gameBoard[y][x] * 2;
                         this.setMerged(y, newX + 1);
                         this.gameBoard[y][x] = null;
                         this.tileAnim(y, x, y, newX + 1);
                     } else if (x !== newX) {
-                        this.updatePrevBoard();
                         [this.gameBoard[y][newX], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
                         this.tileAnim(y, x, y, newX);
                     }
@@ -310,13 +305,11 @@ class Game {
                     }
 
                     if (this.gameBoard[newY + 1] !== undefined && this.gameBoard[newY + 1][x] !== undefined && !this.gameMerged[newY + 1][x] && this.gameBoard[newY + 1][x] === this.gameBoard[y][x]) {
-                        this.updatePrevBoard();
                         this.gameBoard[newY + 1][x] = this.gameBoard[y][x] * 2;
                         this.setMerged(newY + 1, x);
                         this.gameBoard[y][x] = null;
                         this.tileAnim(y, x, newY + 1, x);
                     } else if (y !== newY) {
-                        this.updatePrevBoard();
                         [this.gameBoard[newY][x], this.gameBoard[y][x]] = [this.gameBoard[y][x], null];
                         this.tileAnim(y, x, newY, x);
                     }
