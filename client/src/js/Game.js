@@ -16,6 +16,7 @@ class Game {
         ];
 
         window.localStorage.prevGameBoard ? this.prevGameBoard = JSON.parse(window.localStorage.prevGameBoard) : this.prevGameBoard = [[], [], [], []];
+        this.tempPrevGameBoard = [[], [], [], []];
 
         this.gameMerged = [
             [false, false, false, false],
@@ -36,6 +37,7 @@ class Game {
 
         this.mobileView = window.matchMedia('(max-width: 500px)')
         this.isMobeile = this.mobileView.matches;
+        this.phoneMove = false;
 
         this.mobileView.addListener(isMobile => {
             this.isMobeile = isMobile.matches;
@@ -165,10 +167,10 @@ class Game {
     updatePrevBoard() {
         for (let y = 0; y < this.gameBoard.length; ++y) {
             for (let x = 0; x < this.gameBoard.length; ++x) {
+                this.tempPrevGameBoard[y][x] = this.prevGameBoard[y][x];
                 this.prevGameBoard[y][x] = this.gameBoard[y][x];
             }
         }
-        window.localStorage.setItem('prevGameBoard', JSON.stringify(this.prevGameBoard));
     }
 
     setPrevBoard() {
@@ -343,6 +345,13 @@ class Game {
                 this.unsetMerged();
                 this.createRandomTile();
                 this.updatePoints();
+                window.localStorage.setItem('prevGameBoard', JSON.stringify(this.prevGameBoard));
+            } else {
+                for (let y = 0; y < this.gameBoard.length; ++y) {
+                    for (let x = 0; x < this.gameBoard.length; ++x) {
+                        this.prevGameBoard[y][x] = this.tempPrevGameBoard[y][x]
+                    }
+                }
             }
         }
     }
@@ -370,28 +379,43 @@ class Game {
                 if (touchDelta.x > 30) {
                     this.onRightMove();
                     this.leftMove();
+                    this.phoneMove = true;
                 } else if (touchDelta.x < -30) {
                     this.onRightMove();
                     this.rightMove();
+                    this.phoneMove = true;
                 }
             } else {
                 if (touchDelta.y > 30) {
                     this.onRightMove();
                     this.upMove();
+                    this.phoneMove = true;
                 } else if (touchDelta.y < -30) {
                     this.onRightMove();
                     this.downMove();
+                    this.phoneMove = true;
                 }
             }
 
-            if (this.roundChanges) {
-                this.unsetMerged();
-                this.createRandomTile();
-                this.updatePoints();
-                this.touchPosition = {
-                    x: null,
-                    y: null,
+            if (this.phoneMove) {
+                if (this.roundChanges) {
+                    this.unsetMerged();
+                    this.createRandomTile();
+                    this.updatePoints();
+                    window.localStorage.setItem('prevGameBoard', JSON.stringify(this.prevGameBoard));
+                    this.touchPosition = {
+                        x: null,
+                        y: null,
+                    }
+                } else {
+                    console.log('bld')
+                    for (let y = 0; y < this.gameBoard.length; ++y) {
+                        for (let x = 0; x < this.gameBoard.length; ++x) {
+                            this.prevGameBoard[y][x] = this.tempPrevGameBoard[y][x]
+                        }
+                    }
                 }
+                this.phoneMove = false;
             }
         }
     }
