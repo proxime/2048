@@ -14,14 +14,6 @@ module.exports = merge(common, {
   },
   devtool: 'source-map',
   plugins: [
-    /**
-     * MiniCssExtractPlugin
-     *
-     * Extracts CSS into separate files.
-     *
-     * Note: style-loader is for development, MiniCssExtractPlugin is for production.
-     * They cannot be used together in the same config.
-     */
     new MiniCssExtractPlugin({
       filename: 'css/styles/[name].[contenthash].css',
       chunkFilename: '[id].css',
@@ -42,11 +34,6 @@ module.exports = merge(common, {
       },
     ],
   },
-  /**
-   * Optimization
-   *
-   * Production minimizing of JavaSvript and CSS assets.
-   */
   optimization: {
     minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
   },

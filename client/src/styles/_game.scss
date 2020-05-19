@@ -114,27 +114,51 @@
   }
   &__tile--1024 {
     background-color: #6ab04c;
+    .game__tile-content {
+      font-size: 2.8rem;
+    }
   }
   &__tile--2048 {
     background-color: #27ae60;
+    .game__tile-content {
+      font-size: 2.7rem;
+    }
   }
   &__tile--4096 {
     background-color: #8e44ad;
+    .game__tile-content {
+      font-size: 2.7rem;
+    }
   }
   &__tile--8192 {
     background-color: #30336b;
+    .game__tile-content {
+      font-size: 2.7rem;
+    }
   }
   &__tile--16384 {
     background-color: #2c3e50;
+    .game__tile-content {
+      font-size: 2.1rem;
+    }
   }
   &__tile--32768 {
     background-color: #281d5a;
+    .game__tile-content {
+      font-size: 2.1rem;
+    }
   }
   &__tile--65536 {
     background-color: #6d126d;
+    .game__tile-content {
+      font-size: 2.1rem;
+    }
   }
   &__tile--131072 {
     background-color: #000000;
+    .game__tile-content {
+      font-size: 1.7rem;
+    }
   }
 }
 

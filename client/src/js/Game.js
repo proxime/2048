@@ -408,7 +408,6 @@ class Game {
                         y: null,
                     }
                 } else {
-                    console.log('bld')
                     for (let y = 0; y < this.gameBoard.length; ++y) {
                         for (let x = 0; x < this.gameBoard.length; ++x) {
                             this.prevGameBoard[y][x] = this.tempPrevGameBoard[y][x]
